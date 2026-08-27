@@ -27,6 +27,6 @@ add_executable(NeonDebugTarget src/test_host.cpp)
 
 if(MSVC)
   target_compile_definitions(NeonDebugger PRIVATE UNICODE _UNICODE WIN32_LEAN_AND_MEAN NOMINMAX)
-  target_compile_options(NeonDebugger PRIVATE /W4 /permissive-)
+  target_compile_options(NeonDebugger PRIVATE /W4 /permissive- "/FI${CMAKE_CURRENT_SOURCE_DIR}/src/imgui_win32_forward.h")
   target_compile_options(NeonDebugTarget PRIVATE /W4 /permissive-)
 endif()
