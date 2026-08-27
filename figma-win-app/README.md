@@ -11,7 +11,7 @@ cmake -S figma-win-app -B figma-win-app/build -A x64
 cmake --build figma-win-app/build --config Release
 ```
 
-GitHub Actions builds `NeonDebugger-Windows-x64.zip` automatically on this branch.
+GitHub Actions builds `NeonDebugger-Windows-x64.zip` automatically on this branch. The ZIP contains the real `NeonDebugger.exe` executable at its root.
 
 ## Implemented
 
