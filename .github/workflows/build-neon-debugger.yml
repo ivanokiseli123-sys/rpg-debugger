@@ -3,6 +3,8 @@ on:
   push:
     branches: [neon-imgui-app]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: windows-2022
@@ -12,14 +14,32 @@ jobs:
         run: cmake -S figma-win-app -B figma-win-app/build -A x64
       - name: Build
         run: cmake --build figma-win-app/build --config Release --parallel
-      - name: Package
+      - name: Verify EXE
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item figma-win-app/build/Release/NeonDebugger.exe dist/NeonDebugger.exe
-          Compress-Archive -Path dist/NeonDebugger.exe -DestinationPath NeonDebugger-Windows-x64.zip -Force
-      - name: Upload artifact
+          $exe = "$env:GITHUB_WORKSPACE\figma-win-app\build\Release\NeonDebugger.exe"
+          if (!(Test-Path $exe -PathType Leaf)) { throw "Missing NeonDebugger.exe: $exe" }
+          $size = (Get-Item $exe).Length
+          Write-Host "Verified NeonDebugger.exe: $size bytes"
+          if ($size -lt 100KB) { throw "Executable is unexpectedly small" }
+      - name: Package ZIP containing EXE
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item "$env:GITHUB_WORKSPACE\figma-win-app\build\Release\NeonDebugger.exe" "dist\NeonDebugger.exe"
+          Compress-Archive -Path "dist\NeonDebugger.exe" -DestinationPath "NeonDebugger-Windows-x64.zip" -Force
+          tar -tf NeonDebugger-Windows-x64.zip
+      - name: Upload EXE ZIP
         uses: actions/upload-artifact@v4
         with:
           name: NeonDebugger-Windows-x64
           path: NeonDebugger-Windows-x64.zip
+          if-no-files-found: error
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: NeonDebugger-Windows-x64.zip
+          fail_on_unmatched_files: true
