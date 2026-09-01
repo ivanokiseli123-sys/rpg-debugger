@@ -6,6 +6,9 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-2022
@@ -32,10 +35,11 @@ jobs:
           path: build\Release\NeonDebugger.exe
           if-no-files-found: error
 
-      - name: Create GitHub Release with direct EXE
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Create Release with direct EXE
+        if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: build\Release\NeonDebugger.exe
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v0.0.{0}', github.run_number) }}
+          name: NeonDebugger ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v0.0.{0}', github.run_number) }}
+          files: build/Release/NeonDebugger.exe
           generate_release_notes: true
-          name: NeonDebugger ${{ github.ref_name }}
