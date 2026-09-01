@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  push:
+    tags: ['v*']
 
 jobs:
   build-windows:
@@ -19,23 +21,22 @@ jobs:
       - name: Build Release
         run: cmake --build build --config Release --parallel
 
-      - name: Package
+      - name: Verify EXE
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item build\Release\NeonDebugger.exe dist\NeonDebugger.exe
-          Compress-Archive -Path dist\NeonDebugger.exe -DestinationPath NeonDebugger-Windows-x64.zip -Force
+          if (!(Test-Path 'build\Release\NeonDebugger.exe')) { throw 'NeonDebugger.exe was not produced' }
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
           name: NeonDebugger-Windows-x64
-          path: NeonDebugger-Windows-x64.zip
+          path: build\Release\NeonDebugger.exe
           if-no-files-found: error
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release with direct EXE
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: NeonDebugger-Windows-x64.zip
+          files: build\Release\NeonDebugger.exe
           generate_release_notes: true
+          name: NeonDebugger ${{ github.ref_name }}
