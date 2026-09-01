@@ -1,57 +1,34 @@
-# RPG Debugger
+# NeonDebugger
 
-A Windows-only single-player development debugger for your own RPG. It provides a dark Win32 GUI, process selection/attachment, Lua scripting, and explicit memory read/write helpers.
+A Windows x64 developer scripting/debugging sandbox with a dark neon interface inspired by executor-style tools. It is intended for software you own or are authorized to test.
 
 ## Features
 
-- Windows x64 GUI
-- Process enumeration and attach/detach
-- `ReadProcessMemory` / `WriteProcessMemory` wrappers
-- Embedded Lua 5.4.7
-- Lua helpers for `i32`, `f32`, `u64`, and byte buffers
-- Script editor and output console
-- F5 script execution
-- GitHub Actions build producing `RPGDebugger-Windows-x64.zip`
+- Windows x64 desktop GUI
+- Lua scripting editor and output console
+- Process selection and attach/detach for authorized development/debugging
+- Explicit memory read/write helpers for your own test software
+- No Roblox injection, anti-cheat bypass, stealth, persistence, or multiplayer cheating
 
-## Lua examples
+## Build the EXE
 
-```lua
--- Replace these addresses with addresses from your own development build.
-local health = mem.read_i32("0x12345678")
-mem.log("health = " .. health)
-mem.write_i32("0x12345678", 100)
+GitHub Actions builds the Windows x64 Release package on pushes to `main` and can also be started manually from **Actions → Build Windows EXE → Run workflow**.
 
-local speed = mem.read_f32("0x1234567C")
-mem.write_f32("0x1234567C", speed * 2.0)
-```
+The workflow produces `NeonDebugger-Windows-x64.zip`, containing `NeonDebugger.exe`.
 
-Available functions:
+A version tag such as `v1.0.0` also creates a GitHub Release with the ZIP attached.
 
-- `mem.read_i32(address)`
-- `mem.read_f32(address)`
-- `mem.read_u64(address)`
-- `mem.read_bytes(address, length)`
-- `mem.write_i32(address, value)`
-- `mem.write_f32(address, value)`
-- `mem.write_u64(address, value)`
-- `mem.write_bytes(address, string)`
-- `mem.log(message)`
+## Local build
 
-Addresses accept Lua integers or strings such as `"0x12345678"`.
-
-## Build
-
-The repository includes a GitHub Actions workflow. Push to `main` or run **Actions → Build Windows EXE → Run workflow**. The workflow compiles the x64 Release executable and uploads `RPGDebugger-Windows-x64.zip` as an artifact.
-
-For local Windows builds, install Visual Studio 2022 with the Desktop C++ workload and CMake, then run:
+Install Visual Studio 2022 with the Desktop C++ workload and CMake, then:
 
 ```powershell
 cmake -S . -B build -A x64
 cmake --build build --config Release
 ```
 
-The executable is produced at `build\\Release\\RPGDebugger.exe`.
+The executable is produced at `build\\Release\\NeonDebugger.exe`.
 
-## Safety / scope
+## Scope
 
-This is intended for debugging software you own or are authorized to test. It does not contain DLL injection, anti-cheat bypasses, stealth, persistence, or multiplayer cheating features.
+This project is a legitimate development/debugging sandbox. It does not implement Roblox exploit injection or anti-cheat bypass functionality.
